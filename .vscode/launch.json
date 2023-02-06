@@ -1,0 +1,98 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'react-props-replacer'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=react-props-replacer"
+        ],
+        "filter": {
+          "name": "react-props-replacer",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'react-props-replacer'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=react-props-replacer",
+          "--package=react-props-replacer"
+        ],
+        "filter": {
+          "name": "react-props-replacer",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'react-props-replacer'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=react-props-replacer",
+          "--package=react-props-replacer"
+        ],
+        "filter": {
+          "name": "react-props-replacer",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug example 'remove'",
+      "cargo": {
+        "args": [
+          "build",
+          "--example=remove",
+          "--package=react-props-replacer"
+        ],
+        "filter": {
+          "name": "remove",
+          "kind": "example"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in example 'remove'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--example=remove",
+          "--package=react-props-replacer"
+        ],
+        "filter": {
+          "name": "remove",
+          "kind": "example"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
