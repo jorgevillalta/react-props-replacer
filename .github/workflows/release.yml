@@ -45,5 +45,5 @@ jobs:
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{FILENAME}}
+          name: $FILENAME
           path: ./target/release/${{FILENAME}}.zip
