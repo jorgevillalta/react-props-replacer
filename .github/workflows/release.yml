@@ -17,8 +17,6 @@ jobs:
           - { version: macos-latest, name: macos }
 
     runs-on: ${{matrix.os.version}}
-    env:
-      FILENAME: react-props-replacer.${{matrix.os.name}}
     steps:
       - name: Install latest rust toolchain
         uses: actions-rs/toolchain@v1
@@ -37,7 +35,7 @@ jobs:
         uses: thedoctor0/zip-release@0.7.1
         with:
           type: "zip"
-          filename: $FILENAME.zip
+          filename: react-props-replacer.${{matrix.os.name}}.zip
           directory: ./target/release
           path: react-props-replacer*
           exclusions: react-props-replacer.*d*
@@ -45,5 +43,5 @@ jobs:
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: $FILENAME
-          path: ./target/release/$FILENAME.zip
+          name: react-props-replacer.${{matrix.os.name}}
+          path: ./target/release/react-props-replacer.${{matrix.os.name}}.zip
