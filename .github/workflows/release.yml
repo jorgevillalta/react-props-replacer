@@ -1,8 +1,9 @@
 name: Release
 
 on:
-  pull_request:
-    branches: ["main"]
+  push:
+    tags:
+      - "v*.*.*"
 
 env:
   CARGO_TERM_COLOR: always
@@ -12,9 +13,9 @@ jobs:
     strategy:
       matrix:
         os:
-          - { version: ubuntu-latest, name: linux }
-          - { version: windows-latest, name: windows }
-          - { version: macos-latest, name: macos }
+          - { version: ubuntu-latest, name: unknown-linux }
+          - { version: windows-latest, name: pc-windows }
+          - { version: macos-latest, name: apple-darwin }
 
     runs-on: ${{matrix.os.version}}
     permissions:
@@ -46,5 +47,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           draft: true
-          tag_name: v0.5.0
           files: ./target/release/react-props-replacer.${{matrix.os.name}}.zip
