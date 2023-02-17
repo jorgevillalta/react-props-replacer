@@ -9,9 +9,9 @@ mod config {
     use super::*;
 
     #[test]
-    fn create_config_from_argsith_valid_data() {
+    fn create_config_from_args_with_valid_data() {
         let result = ConfigBuilder::new()
-            .parse_args(&["", FILE_HTML_DATATESTID, "--remove-prop"].map(|v| v.to_string()))
+            .parse_args(&[FILE_HTML_DATATESTID, "--remove-prop"].map(|v| v.to_string()))
             .build();
         assert!(result.is_ok());
 
@@ -21,7 +21,6 @@ mod config {
         let result = ConfigBuilder::new()
             .parse_args(
                 &[
-                    "",
                     FILE_HTML_DATATESTID,
                     "--remove-prop",
                     "--output",
@@ -41,19 +40,24 @@ mod config {
     }
 
     #[test]
-    fn create_config_from_argsith_invalid_input() {
+    fn create_config_from_empty_args() {
+        let result = ConfigBuilder::new().parse_args(&[]).build();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn create_config_from_args_with_invalid_input() {
         let result = ConfigBuilder::new()
-            .parse_args(&["", FILE_NOT_EXISTS, "--remove-prop"].map(|v| v.to_string()))
+            .parse_args(&[FILE_NOT_EXISTS, "--remove-prop"].map(|v| v.to_string()))
             .build();
         assert!(result.is_err());
     }
 
     #[test]
-    fn create_config_from_argsith_invalid_output() {
+    fn create_config_from_args_with_invalid_output() {
         let result = ConfigBuilder::new()
             .parse_args(
                 &[
-                    "",
                     FILE_HTML_DATATESTID,
                     "--remove-prop",
                     "--output",
@@ -66,9 +70,9 @@ mod config {
     }
 
     #[test]
-    fn create_config_from_argsithout_actions() {
+    fn create_config_from_args_without_actions() {
         let result = ConfigBuilder::new()
-            .parse_args(&["", FILE_HTML_DATATESTID].map(|v| v.to_string()))
+            .parse_args(&[FILE_HTML_DATATESTID].map(|v| v.to_string()))
             .build();
         assert!(result.is_err());
     }
