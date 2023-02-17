@@ -44,11 +44,13 @@ impl ConfigBuilder {
     }
 
     pub fn parse_args(mut self, args: &[String]) -> Self {
-        if args.len() > 1 {
-            self.input = Some(PathBuf::from(&args[1]));
+        if args.first().is_none() {
+            return self;
         }
 
-        let args_rest = args[2..].join(" ");
+        self.input = Some(PathBuf::from(&args.first().unwrap()));
+
+        let args_rest = args[1..].join(" ");
         let options = args_rest.split("--");
 
         for option in options {
