@@ -75,7 +75,7 @@ impl ConfigBuilder {
         self
     }
 
-    pub fn build(self: Self) -> Result<Config, &'static str> {
+    pub fn build(self) -> Result<Config, &'static str> {
         if self.input.is_none() {
             return Err("Input file is not present.");
         }
