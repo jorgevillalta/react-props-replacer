@@ -1,10 +1,12 @@
 mod component;
 mod config;
+mod report;
 
 use std::{borrow::Cow, error::Error, fs};
 
-use component::{Component, ComponentType};
+use component::{Component, ComponentType, Content, ReactContent};
 pub use config::{Action, Config, ConfigBuilder};
+pub use report::ContentReport;
 
 ///
 pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
@@ -12,34 +14,36 @@ pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
     let content = fs::read_to_string(&config.input).expect("Error reading input file.");
 
     //
+    println!("📁 Processing file: {}...", &config.input.display());
     let content_updated = apply_content_actions(&content, &config.actions);
 
     //
     fs::write(&config.output, content_updated).expect("Error writing output file.");
 
-    println!("Process completed successfully");
+    println!("✨ Process completed successfully 🎉🎉");
 
     Ok(())
 }
 
 ///
-fn apply_content_actions(content: &str, actions: &[Action]) -> String {
-    let mut content_by_component = content.split('<'); // TODO try with split_inclusive
+fn apply_content_actions(content: ReactContent, actions: &[Action]) -> String {
+    let mut content_by_component = content.split_by_components();
 
-    let mut content_by_component_updated: Vec<Cow<'_, str>> =
-        vec![Cow::Borrowed(content_by_component.next().unwrap())];
+    let mut content_updated = vec![content_by_component.next().unwrap().to_string()];
     let mut component_vector: Vec<Component> = vec![];
+    let mut content_report = ContentReport::new();
 
     //
     while let Some(raw_component) = content_by_component.next() {
         // Ignore 'component-lines' with element close char
         if raw_component.trim_start().starts_with('/') {
-            content_by_component_updated.push(Cow::Borrowed(raw_component));
+            content_updated.push(raw_component.to_string());
             continue;
         }
 
         let component = Component::from(raw_component);
-        let mut source_updated = Cow::Borrowed(raw_component);
+        let mut is_updated_component = false;
+        let mut updated_component = String::from(raw_component);
 
         // Apply actions
         for action in actions {
@@ -48,29 +52,30 @@ fn apply_content_actions(content: &str, actions: &[Action]) -> String {
                     let raw_prop = component.get_raw_prop(&prop_name);
 
                     if component.typo == ComponentType::HtmlElement && raw_prop.is_some() {
-                        source_updated = Cow::Owned(source_updated.replace(&raw_prop.unwrap(), ""));
+                        updated_component = updated_component.replace(&raw_prop.unwrap(), "");
+                        is_updated_component = true;
                     }
                 }
             }
         }
 
         //
-        content_by_component_updated.push(source_updated);
+        content_updated.push(updated_component);
+
+        // This component has been updated
+        /*         if is_updated_component {
+            content_report.add_replacement(0, raw_component, content_updated.last);
+        } */
 
         // Only for tracking purposes
         component_vector.push(component);
     }
 
-    let content_updated = content_by_component_updated.join("<");
-
-    println!(
-        "\n------------------\nSUMMARY: \n\t* Number of components found: {}",
-        component_vector.len()
-    );
+    println!("{}", &content_report);
 
     // dbg!(component_vector);
 
-    content_updated
+    content_updated.join("<")
 }
 
 #[cfg(test)]
@@ -79,7 +84,7 @@ mod tests {
 
     #[test]
     fn update_with_remove_action_one_line_content_wo_effect() {
-        let content = "import styles from './styles.scss';";
+        let content: ReactContent = "import styles from './styles.scss';";
         let content_result =
             apply_content_actions(content, &[Action::RemoveProp("data-testid".to_string())]);
         assert_eq!(content, content_result);
@@ -87,7 +92,7 @@ mod tests {
 
     #[test]
     fn update_with_remove_action_one_line_content() {
-        let content = "import styles from './styles.scss'; function MyComponent { return (<div><span/><h1 data-testid='test_id' >Main title</h1></div>);}";
+        let content: ReactContent = "import styles from './styles.scss'; function MyComponent { return (<div><span/><h1 data-testid='test_id' >Main title</h1></div>);}";
         let content_result =
             apply_content_actions(content, &[Action::RemoveProp("data-testid".to_string())]);
         assert_ne!(content, content_result);
@@ -96,7 +101,7 @@ mod tests {
 
     #[test]
     fn update_with_remove_action_multi_line_content() {
-        let content = "import styles from './styles.scss';\n\n function MyComponent {\n  return (\n    <div>      <span/>\n      <h1 data-testid='test_id' >Main title</h1>\n    </div>);}\n";
+        let content: ReactContent = "import styles from './styles.scss';\n\n function MyComponent {\n  return (\n    <div>      <span/>\n      <h1 data-testid='test_id' >Main title</h1>\n    </div>);}\n";
         let content_result =
             apply_content_actions(content, &[Action::RemoveProp("data-testid".to_string())]);
         assert_ne!(content, content_result);
@@ -105,7 +110,7 @@ mod tests {
 
     #[test]
     fn update_with_remove_action_multi_line_and_multi_prop_content() {
-        let content = "import styles from './styles.scss';\n\n function MyComponent {\n  return (\n    <div>      <span id='span_id' data-testid='span_test_id'/>\n      <h1 data-testid='h1_test_id' >Main title</h1>\n    </div>);}\n";
+        let content: ReactContent = "import styles from './styles.scss';\n\n function MyComponent {\n  return (\n    <div>      <span id='span_id' data-testid='span_test_id'/>\n      <h1 data-testid='h1_test_id' >Main title</h1>\n    </div>);}\n";
         let content_result =
             apply_content_actions(content, &[Action::RemoveProp("data-testid".to_string())]);
         assert_ne!(content, content_result);
@@ -116,7 +121,7 @@ mod tests {
 
     #[test]
     fn update_with_remove_action_multi_line_and_react_component_content_wo_effect() {
-        let content = "import styles from './styles.scss';\n\n function MyComponent {\n  return (\n    <div>      <span id='span_id'/>\n      <h1>Main title</h1>\n      <MyOtherComponent data-testid='other_test_id' />\n    </div>);}\n";
+        let content: ReactContent = "import styles from './styles.scss';\n\n function MyComponent {\n  return (\n    <div>      <span id='span_id'/>\n      <h1>Main title</h1>\n      <MyOtherComponent data-testid='other_test_id' />\n    </div>);}\n";
         let content_result =
             apply_content_actions(content, &[Action::RemoveProp("data-testid".to_string())]);
         assert_eq!(content, content_result);

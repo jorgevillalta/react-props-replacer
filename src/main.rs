@@ -8,7 +8,7 @@ fn main() -> Result<(), Error> {
 
     // On empty args, print command help & exit
     if args.len() == 1 {
-        println!("A CLI application to smart replace props in React files.\n\nUsage: react-props-replacer source_file [--output output_file] [--remove-prop [prop_name | \"data-testid\"]]");
+        println!("A CLI application to smart replace props in React files.\n\nUsage: react-props-replacer source_file [--output output_file | source_file\".updated\".ext] --remove-prop [prop_name | \"data-testid\"]");
         return Ok(());
     }
 

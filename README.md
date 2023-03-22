@@ -6,5 +6,5 @@ A CLI application to _smart_ replace props in React files. Can be helpfull to re
 
 Usage:
 ```
-react-props-replacer source_file [--output output_file] [--remove-prop [prop_name | "data-testid"]]
+react-props-replacer source_file [--output output_file | source_file".updated".ext] --remove-prop [prop_name | "data-testid"]
 ```
